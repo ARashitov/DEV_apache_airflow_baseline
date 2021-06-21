@@ -1,0 +1,12 @@
+version: '3'
+services:
+
+  jupyter-notebook:
+    image: atmosphere4u/ml-environment:0.0.2
+    ports:
+      - 8888:8888
+    volumes:
+      - ./notebooks:/WORKDIR/notebooks
+      - ./data:/WORKDIR/data
+      - ./models:/WORKDIR/models
+    restart: always
