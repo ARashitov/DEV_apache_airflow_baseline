@@ -1,34 +1,17 @@
-FROM python:3.9.5
+FROM apache/airflow:2.1.2-python3.9
 
+USER root
 
-ARG JUPYTER_PASSWORD_SHA1
-ENV JUPYTER_PASSWORD_SHA1=sha1:436b009043ee:63c02302b58210e5862f18e57f5d91f4c3f0408c
+COPY ./requirements.txt requirements.txt
+COPY ./install_private_dependencies.sh install_private_dependencies.sh
 
-
-WORKDIR /WORKDIR
-LABEL MAINTAINER "Adil Rashitov adil.rashitov.98@gmail.com"
-
-# 1. Copy inputs
-COPY ./requirements.txt /
-COPY ./jupyter_extension_install.sh ./jupyter_extension_install.sh
-
-# 2. Installation of dependencies
 RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get install -y git \
     && pip3 install --upgrade pip \
-    && pip3 install wheel \
-    && pip3 install -r /requirements.txt \
-    && pip3 install git+https://github.com/AtmosOne/S3SDK.git \
-    && sh jupyter_extension_install.sh \
-    && rm /requirements.txt \
-    && rm -rf jupyter_extension_install.sh
-    
-# 3. Entrypoint
-ENTRYPOINT jupyter-notebook \
-    --no-browser \
-    --allow-root \
-    --ip 0.0.0.0 \
-    --port 8888 \
-    --NotebookApp.password=${JUPYTER_PASSWORD_SHA1};
+    && pip3 install -r requirements.txt --no-warn-script-location \
+    && rm -rf requirements.txt \
+    && source install_private_dependencies.sh \
+    && rm -rf 
 
-
-EXPOSE 8888
+USER airflow
