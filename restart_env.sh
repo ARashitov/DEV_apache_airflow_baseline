@@ -1,1 +1,0 @@
-source stop_env.sh && source start_env.sh;
