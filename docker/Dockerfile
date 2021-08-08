@@ -5,6 +5,7 @@ USER root
 COPY ./requirements.txt requirements.txt
 COPY ./install_private_dependencies.sh install_private_dependencies.sh
 
+
 RUN apt-get update \
     && apt-get upgrade -y \
     && apt-get install -y git \
@@ -12,6 +13,8 @@ RUN apt-get update \
     && pip3 install -r requirements.txt --no-warn-script-location \
     && rm -rf requirements.txt \
     && source install_private_dependencies.sh \
-    && rm -rf 
+    && rm -rf install_private_dependencies.sh airflow.cfg
+
+COPY ./airflow/airflow.cfg airflow.cfg
 
 USER airflow
