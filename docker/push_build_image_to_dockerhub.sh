@@ -1,0 +1,1 @@
+docker push "${AIRFLOW_IMAGE_NAME}"

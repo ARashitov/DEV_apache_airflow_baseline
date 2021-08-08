@@ -1,1 +1,1 @@
-docker build . -f Dockerfile --tag atmosphere4u/apache-airflow:2.1.2.1-python3.9 --no-cache
+docker build . -f Dockerfile --tag "${AIRFLOW_IMAGE_NAME}" --no-cache
