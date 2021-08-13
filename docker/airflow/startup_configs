@@ -1,8 +1,11 @@
-# Sample credentials
+# Airflow configs
 _AIRFLOW_WWW_USER_USERNAME=AdilRashitov
 _AIRFLOW_WWW_USER_PASSWORD=AdilRashitov
 _PIP_ADDITIONAL_REQUIREMENTS=''
-
-# Don't know what is it, but must be specified
 AIRFLOW_UID=1000
 AIRFLOW_GID=0
+
+# Postgres storage configs
+_POSTGRES_DATA_STORAGE_USERNAME=AdilRashitov
+_POSTGRES_DATA_STORAGE_PASSWORD=AdilRashitov
+_POSTGRES_DATA_STORAGE_DATABASE=airflow

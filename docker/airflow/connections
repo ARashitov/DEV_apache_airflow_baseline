@@ -1,5 +1,5 @@
-# URI to PostgreSQL with stored contact details from Direct118
-AIRFLOW_CONN_DATA_POSTGRES=MyTestConnection
+AIRFLOW_CONN_POSTGRES=postgresql://AdilRashitov:AdilRashitov@data-storage/airflow
+AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS=postgresql://AdilRashitov:AdilRashitov@data-storage/companies_contact_details
 
 # URL to scrape
 AIRFLOW_CONN_WWW_DIRECT_118=http://www.118.direct/listing/search?

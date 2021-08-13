@@ -1,1 +1,0 @@
-docker build . -f Dockerfile --tag "${AIRFLOW_IMAGE_NAME}" --no-cache
