@@ -1,8 +1,0 @@
-# DIRECT_118 | parameters staging directories
-I_DIRECT_118_BUSINESS_CATEGORIES=/opt/airflow/data/intermediate/direct_118_business_categories/built_urls.csv.zip
-I_DIRECT_118_SCRAPPED_CATEGORIES_DIR=/opt/airflow/data/intermediate/direct_118_business_categories/scrapped_categories/
-I_DIRECT_118_FIRST_PAGE_REQUESTS=/opt/airflow/data/intermediate/direct_118_business_categories/first_page_requests.csv.zip
-I_DIRECT_118_N_PAGES_STAGE_DIR=/opt/airflow/data/intermediate/direct_118_business_categories/n_pages_at_each_category/
-O_DIRECT_118_WEB_SCRAPPING_PARAMETER=/opt/airflow/data/intermediate/direct_118_business_categories/web_scrapping_parameters.csv.zip
-
-I_DIRECT_118_POPULAR_SEARCHES_TABLE=DIRECT_118_POPULAR_SEARCHES

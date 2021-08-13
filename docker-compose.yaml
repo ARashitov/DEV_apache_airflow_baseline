@@ -59,7 +59,7 @@
       _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     env_file:
       - ./docker/airflow/connections
-      - ./docker/airflow/staging_fpaths
+      - ./docker/airflow/intermediate_stages
     volumes:
       - ./dags:/opt/airflow/dags
       - ./logs:/opt/airflow/logs
