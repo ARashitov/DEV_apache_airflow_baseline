@@ -1,3 +1,9 @@
+"""
+Author: Adil Rashitov
+Created at: 13.08.2021
+About:
+    Generates url to `popular_searches` where business categories are listed
+"""
 from airflow.operators.python import PythonOperator
 
 
