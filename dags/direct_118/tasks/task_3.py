@@ -58,13 +58,18 @@ class Task3:
             logging.error("Nothing to export")
 
 
-def factory_task_3(postgres_uri: str, source_stage_table: str,
-                   locations: list, target_stage_table: str,
-                   http_base_url: str, requirements: list):
+def factory_task_3(postgres_uri: str,
+                   source_stage_table: str,
+                   target_stage_table: str,
+                   http_base_url: str,
+                   locations: list,
+                   requirements: list,):
 
-    def task_3(postgres_uri: str, source_stage_table: str,
-               locations: list, target_stage_table: str,
-               http_base_url: str):
+    def task_3(postgres_uri: str,
+               source_stage_table: str,
+               target_stage_table: str,
+               http_base_url: str,
+               locations: list):
 
         import logging
         import sqlalchemy
@@ -98,8 +103,8 @@ def factory_task_3(postgres_uri: str, source_stage_table: str,
                 'postgres_uri': postgres_uri,
                 'source_stage_table': source_stage_table,
                 'target_stage_table': target_stage_table,
-                'locations': locations,
                 'http_base_url': http_base_url,
+                'locations': locations,
             },
             requirements=requirements,
         )

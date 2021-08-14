@@ -102,7 +102,8 @@ def factory_task_2(postgres_uri: str,
                    target_stage_table: str,
                    requirements: list) -> PythonVirtualenvOperator:
     """
-        factory function os second task
+        factory function of second task performing web scrapping
+        of listed business categories in direct118
 
         Arguments:
         * postgres_uri (str): URI to postgres
