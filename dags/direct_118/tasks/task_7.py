@@ -1,7 +1,7 @@
 from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 
-def factory_task_5(postgres_uri: str, tables_to_drop: list):
+def task_7(postgres_uri: str, tables_to_drop: list):
 
     from functools import reduce
 
@@ -19,4 +19,5 @@ def factory_task_5(postgres_uri: str, tables_to_drop: list):
         postgres_conn_id=postgres_uri,
         sql=drop_statement,
     )
+
     return task

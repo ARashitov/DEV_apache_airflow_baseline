@@ -8,6 +8,8 @@ from direct_118 import local_configs
 from direct_118 import tasks
 from airflow.operators.python import PythonVirtualenvOperator
 from airflow.operators.python import PythonOperator
+from airflow.operators.dummy import DummyOperator
+from airflow.providers.postgres.operators.postgres import PostgresOperator
 
 
 with DAG(dag_id='web_scrapping_direct118',
@@ -16,6 +18,28 @@ with DAG(dag_id='web_scrapping_direct118',
          schedule_interval=timedelta(days=1),
          start_date=days_ago(1),
          tags=local_configs.TAGS) as dag:
+
+    def build_sql(tables: list) -> str:
+        """
+            Collection for drop tables
+        """
+        SQL = "DROP TABLE IF EXISTS "
+        for table in tables:
+            SQL += f' public."{table}",'
+        SQL = SQL[:-1]
+        SQL += ';'
+        return SQL
+
+    t0 = PostgresOperator(
+        task_id="drop_staging_tables_before_execution",
+        postgres_conn_id='AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS',
+        sql=build_sql([
+            local_env.STAGE_TABLE_1,
+            local_env.STAGE_TABLE_2,
+            local_env.STAGE_TABLE_3,
+            local_env.STAGE_TABLE_4,
+        ]),
+    )
 
     t1_op_kwargs = {
         'postgres_uri': local_env.POSTGRES_URI,
@@ -78,6 +102,39 @@ with DAG(dag_id='web_scrapping_direct118',
                            n_tasks=global_configs.N_PARALLEL_TASKS_MAX,
                            op_kwargs=t4_op_kwargs)
 
-    t1 >> t2 >> t3
+    t5 = generators \
+        .get_sequential_task(AirflowOperator=DummyOperator,
+                             operator_args={'task_id': 'tasks_glue_operator'})
+
+    t6_op_kwargs = {
+        'postgres_uri': local_env.POSTGRES_URI,
+        'source_stage_table': local_env.STAGE_TABLE_4,
+        'target_stage_table': local_env.OUTPUT_TABLE,
+    }
+    t6_operator_args = {
+        'task_id': 'web_scrapping_contact_details',
+        'python_callable': tasks.task_6,
+        'requirements': local_configs.REQUIREMENTS,
+    }
+    tasks_6 = generators \
+        .get_parallel_task(AirflowOperator=PythonVirtualenvOperator,
+                           operator_args=t6_operator_args,
+                           n_tasks=global_configs.N_PARALLEL_TASKS_MAX,
+                           op_kwargs=t6_op_kwargs)
+
+    t7 = PostgresOperator(
+        task_id="drop_staging_tables_after_execution",
+        postgres_conn_id='AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS',
+        sql=build_sql([
+            local_env.STAGE_TABLE_1,
+            local_env.STAGE_TABLE_2,
+            local_env.STAGE_TABLE_3,
+            local_env.STAGE_TABLE_4,
+        ]),
+    )
+
+    t0 >> t1 >> t2 >> t3
     for t4 in tasks_4:
-        t3 >> t4
+        t3 >> t4 >> t5
+    for t6 in tasks_6:
+        t5 >> t6 >> t7

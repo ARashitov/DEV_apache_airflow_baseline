@@ -8,7 +8,7 @@ About:
 
 def get_sequential_task(AirflowOperator: object,
                         operator_args: dict,
-                        op_kwargs: dict = {}):
+                        op_kwargs: dict = None):
     """
         Airflow task factory function
 
@@ -21,4 +21,7 @@ def get_sequential_task(AirflowOperator: object,
         Returns:
         * (Any): Apache airflow task
     """
-    return AirflowOperator(**operator_args, op_kwargs=op_kwargs)
+    if op_kwargs is None:
+        return AirflowOperator(**operator_args)
+    else:
+        return AirflowOperator(**operator_args, op_kwargs=op_kwargs)
