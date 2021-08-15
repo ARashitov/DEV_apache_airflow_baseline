@@ -5,7 +5,6 @@ About:
     Scrapes business categories from popular searches
 """
 import logging
-from airflow.operators.python import PythonVirtualenvOperator
 
 
 class Task2:
@@ -97,60 +96,34 @@ class Task2:
             logging.error("Nothing to export")
 
 
-def factory_task_2(postgres_uri: str,
-                   source_stage_table: str,
-                   target_stage_table: str,
-                   requirements: list) -> PythonVirtualenvOperator:
+def task_2(postgres_uri: str,
+           source_stage_table: str,
+           target_stage_table: str):
     """
-        factory function of second task performing web scrapping
-        of listed business categories in direct118
+       Performs webscrapping of popular search categories to URL
 
-        Arguments:
+       Arguments:
         * postgres_uri (str): URI to postgres
-        * source_stage_table (str): Table `popular_searches`
-                                    categories will read
-        * target_stage_table (str): Table business catgegories will be exported
-        * requirements (list<str>): Python dependencies to install
-                                    before execution of task
-
-        Returns:
-        * (PythonVirtualenvOperator): Apache airflow task
+        * source_stage_table (str):
+        * target_stage_table (str):
     """
+    import logging
+    from sqlalchemy import create_engine
+    from direct_118.tasks.task_2 import Task2
 
-    def task_2(postgres_uri: str,
-               source_stage_table: str,
-               target_stage_table: str):
+    args = {
+        'postgres_connection': create_engine(postgres_uri),
+        'select_template': f'SELECT * FROM public."{source_stage_table}"',
+        'target_stage_table': target_stage_table,
+    }
 
-        import logging
-        from sqlalchemy import create_engine
-        from direct_118.tasks.task_2 import Task2
+    task_steps = [
+        Task2.read_parameters,
+        Task2.scrape_urls,
+        Task2.export_table,
+    ]
 
-        args = {
-            'postgres_connection': create_engine(postgres_uri),
-            'select_template': f'SELECT * FROM public."{source_stage_table}"',
-            'target_stage_table': target_stage_table,
-        }
-
-        task_steps = [
-            Task2.read_parameters,
-            Task2.scrape_urls,
-            Task2.export_table,
-        ]
-
-        for task_step in task_steps:
-            logging.info(f"Start {task_step.__name__}")
-            args = task_step(args)
-            logging.info(f"Finish {task_step.__name__}\n")
-
-    task = PythonVirtualenvOperator(
-            task_id='export_business_categories',
-            python_callable=task_2,
-            op_kwargs={
-                'postgres_uri': postgres_uri,
-                'source_stage_table': source_stage_table,
-                'target_stage_table': target_stage_table,
-            },
-            requirements=requirements,
-        )
-
-    return task
+    for task_step in task_steps:
+        logging.info(f"Start {task_step.__name__}")
+        args = task_step(args)
+        logging.info(f"Finish {task_step.__name__}\n")

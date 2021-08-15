@@ -4,14 +4,13 @@ Created at: 14.08.2021
 About:
     Performs webscrapping of n_entites to add pages parameter
 """
-from airflow.operators.python import PythonVirtualenvOperator
 
 
 def task_4(task_index: str,
-            n_tasks: int,
-            postgres_uri: str,
-            source_stage_table: str,
-            target_stage_table: str):
+           n_tasks: int,
+           postgres_uri: str,
+           source_stage_table: str,
+           target_stage_table: str):
     """
         Adds `page` parameters to urls with taking
         into account amount of entities need to be extracted
@@ -47,7 +46,7 @@ def task_4(task_index: str,
         offset = args['task_index'] * limit
         args['select_statement'] = \
             (f'SELECT * FROM public."{args["source_stage_table"]}"' +
-            f" OFFSET {offset} LIMIT {limit}")
+             f" OFFSET {offset} LIMIT {limit}")
         logging.info(f"SELECT_STATEMENT: {args['select_statement']}")
         return args
 
@@ -61,7 +60,7 @@ def task_4(task_index: str,
         import pandas as pd
 
         scrapping_parameters = pd.read_sql(args['select_statement'],
-                                            con=args['postgres_connection'])
+                                           con=args['postgres_connection'])
         if scrapping_parameters.shape[0] == 0:
             logging.error("Nothing to read...")
         args['scrapping_params'] = scrapping_parameters
@@ -108,7 +107,7 @@ def task_4(task_index: str,
                 except Exception as exc:
 
                     logging.error(f"Failure finish {params['url']}: "
-                                f"{str(exc)}")
+                                  f"{str(exc)}")
                     params['n_entities'] = 0
 
                 output_dataframe.append(params)
@@ -116,7 +115,7 @@ def task_4(task_index: str,
             else:
 
                 logging.error(f"Error at GET (status code): "
-                            f"{response.status_code}")
+                              f"{response.status_code}")
                 logging.error(f"Error at GET (text): {response.text}")
 
         args['scrapping_params'] = pd.DataFrame(output_dataframe)
@@ -212,44 +211,3 @@ def task_4(task_index: str,
         args = step(args)
         logging.info(f"Finish: {step.__name__}()\n")
     return args
-
-
-def factory_task_4(postgres_uri: str, source_stage_table: str,
-                   target_stage_table: str, n_tasks: int,
-                   requirements: list) -> list:
-    """
-        Function factories task 4 performing webscrapping of amount entities
-        and basing on entities generate required amount of requests with extra
-        `page` parameter in url.
-
-        1. Mapping URL records split by pages to specific task
-        2. Generation task with mapped page select statement
-
-        Arguments:
-        * postgres_uri (str): URI to postgres
-        * source_stage_table (str): Table name to read URLs from
-        * target_stage_table (str): Table name to export updated URLs
-        * n_tasks (str): amount of paralle tasks to generate
-        * requirements (list<str>): List of dependencies
-
-        Returns:
-        * list<PythonVirtualenvOperator>
-    """
-
-    tasks = [
-        PythonVirtualenvOperator(
-            task_id=f'add_page_parameter_to_url_{task_index}',
-            python_callable=task_4,
-            op_kwargs={
-                'task_index': task_index,
-                'n_tasks': n_tasks,
-                'postgres_uri': postgres_uri,
-                'source_stage_table': source_stage_table,
-                'target_stage_table': target_stage_table,
-            },
-            requirements=requirements,
-        )
-        for task_index in range(n_tasks)
-    ]
-
-    return tasks

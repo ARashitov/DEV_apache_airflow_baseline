@@ -4,7 +4,6 @@ Created at: 13.08.2021
 About:
     Generates first urls to contact details
 """
-from airflow.operators.python import PythonVirtualenvOperator
 
 
 class Task3:
@@ -58,55 +57,42 @@ class Task3:
             logging.error("Nothing to export")
 
 
-def factory_task_3(postgres_uri: str,
-                   source_stage_table: str,
-                   target_stage_table: str,
-                   http_base_url: str,
-                   locations: list,
-                   requirements: list,):
+def task_3(postgres_uri: str,
+           source_stage_table: str,
+           target_stage_table: str,
+           http_base_url: str,
+           locations: list):
+    """
+        combining categories and locations to single url
 
-    def task_3(postgres_uri: str,
-               source_stage_table: str,
-               target_stage_table: str,
-               http_base_url: str,
-               locations: list):
+        Arguments:
+        * http_base_url (str): URL endpoint
+        * postgres_uri (str): URI to postgres
+        * source_stage_table (str):
+        * target_stage_table (str):
+        * locations (list<str>): List of locations to add to URL
+    """
+    import logging
+    import sqlalchemy
+    from direct_118.tasks.task_3 import Task3
 
-        import logging
-        import sqlalchemy
-        from direct_118.tasks.task_3 import Task3
+    args = {
+        'postgres_connection': sqlalchemy.create_engine(postgres_uri),
+        'select_statement': f'SELECT * FROM public."{source_stage_table}"',
+        'locations': locations,
+        'http_base_url': http_base_url,
+        'target_stage_table': target_stage_table,
+    }
 
-        args = {
-            'postgres_connection': sqlalchemy.create_engine(postgres_uri),
-            'select_statement': f'SELECT * FROM public."{source_stage_table}"',
-            'locations': locations,
-            'http_base_url': http_base_url,
-            'target_stage_table': target_stage_table,
-        }
+    task_steps = [
+        Task3.read_categories,
+        Task3.cartesian_product_location_and_category,
+        Task3.update_url,
+        Task3.export_table,
+    ]
 
-        task_steps = [
-            Task3.read_categories,
-            Task3.cartesian_product_location_and_category,
-            Task3.update_url,
-            Task3.export_table,
-        ]
-
-        for step in task_steps:
-            logging.info(f"Start {step.__name__}")
-            args = step(args)
-            logging.info(f"Finish {step.__name__}\n")
-        del args
-
-    task = PythonVirtualenvOperator(
-            task_id='export_locaiton_category_url',
-            python_callable=task_3,
-            op_kwargs={
-                'postgres_uri': postgres_uri,
-                'source_stage_table': source_stage_table,
-                'target_stage_table': target_stage_table,
-                'http_base_url': http_base_url,
-                'locations': locations,
-            },
-            requirements=requirements,
-        )
-
-    return task
+    for step in task_steps:
+        logging.info(f"Start {step.__name__}")
+        args = step(args)
+        logging.info(f"Finish {step.__name__}\n")
+    del args
