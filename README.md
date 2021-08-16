@@ -18,12 +18,37 @@ In my current example i'm going to implement several dags performing extraction 
 * cloudscrapper
 
 
-## **How to start Apache Airflow**
+## Commands to manage local enironment
 
-1. export environment variable `AIRFLOW_IMAGE_NAME` with latest image (example: `export AIRFLOW_IMAGE_NAME=atmosphere4u/airflow:2.1.2.1`) (Refer to `/docker` for details)
-2. `docker-compose --env-file ./docker/airflow/startup_configs up airflow-init` : To start postgres and redis.
-3. `docker-compose --env-file ./docker/airflow/startup_configs up -d` : To start postgres and redis.
+**Local environment containers**:
+* Redis + Postgres (metadata airflow storage)
+* Webserver + Scheduler + Flower + Worker(1)
+* Postgres (for actual data storage)
 
+```bash
+docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up airflow-init \
+    && docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up -d;
+```
+
+## Commands to manage local environment
+
+File: `docker-compose-local.yaml`
+
+**Local environment containers**:
+* Redis + Postgres (metadata airflow storage)
+* Webserver + Scheduler + Flower + Worker(1)
+* Postgres (for actual data storage)
+
+To start:
+```bash
+docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up airflow-init \
+    && docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up -d;
+```
+
+To stop:
+```bash
+docker-compose -f docker-compose-local.yaml --env-file ./environment/initials down
+```
 
 ## **FAQ**:
 1. How to delete initlized data: `docker volume rm $(docker volume ls -q)`

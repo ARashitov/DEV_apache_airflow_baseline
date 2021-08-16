@@ -1,2 +1,3 @@
 AIRFLOW_CONN_WWW_DIRECT_118=http://www.118.direct/listing/search?
+
 AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS=postgresql://AdilRashitov:AdilRashitov@data-storage/companies_contact_details
