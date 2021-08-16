@@ -32,7 +32,7 @@ with DAG(dag_id='web_scrapping_direct118',
 
     t0 = PostgresOperator(
         task_id="drop_staging_tables_before_execution",
-        postgres_conn_id='AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS',
+        postgres_conn_id='postgres_contact_details',
         sql=build_sql([
             local_env.STAGE_TABLE_1,
             local_env.STAGE_TABLE_2,
@@ -124,7 +124,7 @@ with DAG(dag_id='web_scrapping_direct118',
 
     t7 = PostgresOperator(
         task_id="drop_staging_tables_after_execution",
-        postgres_conn_id='AIRFLOW_CONN_POSTGRES_CONTACT_DETAILS',
+        postgres_conn_id='postgres_contact_details',
         sql=build_sql([
             local_env.STAGE_TABLE_1,
             local_env.STAGE_TABLE_2,
