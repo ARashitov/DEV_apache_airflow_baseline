@@ -50,22 +50,23 @@
     environment:
       &airflow-common-env
       AIRFLOW__CORE__EXECUTOR: CeleryExecutor
-      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@postgres/airflow
-      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@postgres/airflow
-      AIRFLOW__CELERY__BROKER_URL: redis://:@redis:6379/0
+      AIRFLOW__CORE__SQL_ALCHEMY_CONN: postgresql+psycopg2://airflow:airflow@192.168.0.104/airflow
+      AIRFLOW__CELERY__RESULT_BACKEND: db+postgresql://airflow:airflow@192.168.0.104/airflow
+      AIRFLOW__CELERY__BROKER_URL: redis://:@192.168.0.104:6379/0
       AIRFLOW__CORE__FERNET_KEY: ''
       AIRFLOW__CORE__DAGS_ARE_PAUSED_AT_CREATION: 'true'
       AIRFLOW__CORE__LOAD_EXAMPLES: 'false'
       AIRFLOW__API__AUTH_BACKEND: 'airflow.api.auth.backend.basic_auth'
       _PIP_ADDITIONAL_REQUIREMENTS: ${_PIP_ADDITIONAL_REQUIREMENTS:-}
     env_file:
-      - ./docker/airflow/connections
-      - ./docker/airflow/stagings
+      - ./environment/connections
+      - ./environment/stagings
     volumes:
-      - ./dags:/opt/airflow/dags
-      - ./logs:/opt/airflow/logs
-      - ./plugins:/opt/airflow/plugins
-      - ./data:/opt/airflow/data
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./airflow/plugins:/opt/airflow/plugins
+      - ./airflow/data:/opt/airflow/data
+      - ./airflow/models:/opt/airflow/models
     user: "${AIRFLOW_UID:-50000}:${AIRFLOW_GID:-50000}"
     depends_on:
       redis:
@@ -74,6 +75,7 @@
         condition: service_healthy
   
   services:
+
     postgres:
       image: postgres:13
       environment:
@@ -82,6 +84,8 @@
         POSTGRES_DB: airflow
       volumes:
         - postgres-db-volume:/var/lib/postgresql/data
+      ports: 
+        - 5432:5432
       healthcheck:
         test: ["CMD", "pg_isready", "-U", "airflow"]
         interval: 5s
@@ -120,19 +124,7 @@
         timeout: 10s
         retries: 5
       restart: always
-  
-    airflow-worker:
-      <<: *airflow-common
-      command: celery worker
-      healthcheck:
-        test:
-          - "CMD-SHELL"
-          - 'celery --app airflow.executors.celery_executor.app inspect ping -d "celery@$${HOSTNAME}"'
-        interval: 10s
-        timeout: 10s
-        retries: 5
-      restart: always
-  
+
     airflow-init:
       <<: *airflow-common
       command: version
@@ -154,23 +146,7 @@
         timeout: 10s
         retries: 5
       restart: always
-  
-    data-storage:
-      image: postgres:13
-      environment:
-        POSTGRES_USER: ${_POSTGRES_DATA_STORAGE_USERNAME}
-        POSTGRES_PASSWORD: ${_POSTGRES_DATA_STORAGE_PASSWORD}
-        POSTGRES_DB: ${_POSTGRES_DATA_STORAGE_DATABASE}
-      volumes:
-        - postgres-data-volume:/var/lib/postgresql/data
-      ports: 
-        - 5433:5432
-      healthcheck:
-        test: ["CMD", "pg_isready", "-U", "airflow"]
-        interval: 5s
-        retries: 5
-      restart: always
-  
+
   volumes:
     postgres-db-volume:
-    postgres-data-volume:
+
