@@ -156,22 +156,5 @@
         retries: 5
       restart: always
 
-    data-storage:
-      image: postgres:13
-      environment:
-        POSTGRES_USER: ${_POSTGRES_DATA_STORAGE_USERNAME}
-        POSTGRES_PASSWORD: ${_POSTGRES_DATA_STORAGE_PASSWORD}
-        POSTGRES_DB: ${_POSTGRES_DATA_STORAGE_DATABASE}
-      volumes:
-        - postgres-data-volume:/var/lib/postgresql/data
-      ports: 
-        - 5433:5432
-      healthcheck:
-        test: ["CMD", "pg_isready", "-U", "airflow"]
-        interval: 5s
-        retries: 5
-      restart: always
-  
   volumes:
     postgres-db-volume:
-    postgres-data-volume:
