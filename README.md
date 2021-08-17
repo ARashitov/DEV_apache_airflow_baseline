@@ -30,24 +30,27 @@ docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up
     && docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up -d;
 ```
 
-## Commands to manage local environment
-
-File: `docker-compose-local.yaml`
-
-**Local environment containers**:
-* Redis + Postgres (metadata airflow storage)
-* Webserver + Scheduler + Flower + Worker(1)
-* Postgres (for actual data storage)
-
-To start:
 ```bash
-docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up airflow-init \
-    && docker-compose -f docker-compose-local.yaml --env-file ./environment/initials up -d;
+docker-compose -f docker-compose-local.yaml --env-file ./environment/initials down;
 ```
 
-To stop:
+## Commands to manage distributed infratructure
+
+`docker-compose-master.yaml`:
+* Redis + Postgres (metadata airflow storage)
+* Webserver + Scheduler + Flower
+
+`docker-compose-worker.yaml`:
+* Celery Worker
+
+### Master
 ```bash
-docker-compose -f docker-compose-local.yaml --env-file ./environment/initials down
+docker-compose -f docker-compose-master.yaml --env-file ./environment/initials up airflow-init \
+    && docker-compose -f docker-compose-master.yaml --env-file ./environment/initials up -d;
+```
+### Worker
+```bash
+docker-compose -f docker-compose-worker.yaml --env-file ./environment/initials up -d;
 ```
 
 ## **FAQ**:

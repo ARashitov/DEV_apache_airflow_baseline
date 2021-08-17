@@ -5,10 +5,3 @@ _AIRFLOW_WWW_USER_PASSWORD=AdilRashitov
 _PIP_ADDITIONAL_REQUIREMENTS=''
 AIRFLOW_UID=1000
 AIRFLOW_GID=0
-
-# Postgres test data initials
-# NOTE: Only for testing purposes are needed!!!
-_POSTGRES_DATA_STORAGE_USERNAME=AdilRashitov
-_POSTGRES_DATA_STORAGE_PASSWORD=AdilRashitov
-_POSTGRES_DATA_STORAGE_DATABASE=airflow
-
