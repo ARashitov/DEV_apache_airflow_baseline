@@ -1,0 +1,23 @@
+
+  version: '3'
+
+  services:
+
+    data-storage:
+      image: postgres:13
+      environment:
+        POSTGRES_USER: AdilRashitov
+        POSTGRES_PASSWORD: AdilRashitov
+        POSTGRES_DB: airflow
+      volumes:
+        - postgres-data-volume:/var/lib/postgresql/data
+      ports: 
+        - 5433:5432
+      healthcheck:
+        test: ["CMD", "pg_isready", "-U", "airflow"]
+        interval: 5s
+        retries: 5
+      restart: always
+  
+  volumes:
+    postgres-data-volume:
